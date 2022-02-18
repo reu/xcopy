@@ -1,0 +1,88 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  RUST_BACKTRACE: full
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    outputs:
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+      release_version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get release version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
+          draft: true
+          prerelease: false
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install XCB
+        run: |
+          wget --no-check-certificate https://xcb.freedesktop.org/dist/xcb-proto-1.11.tar.bz2
+          wget --no-check-certificate https://xcb.freedesktop.org/dist/libxcb-1.11.1.tar.bz2
+
+          tar -xjf xcb-proto-1.11.tar.bz2
+          cd xcb-proto-1.11
+          ./configure
+          make
+          sudo make install
+          cd ..
+
+          tar -xjf libxcb-1.11.1.tar.bz2
+          cd libxcb-1.11.1
+          ./configure --enable-xkb --enable-xinput --enable-selinux
+          make
+          sudo make install
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --locked
+
+      - name: Strip debug information
+        run: |
+          strip target/release/pbcopy
+          strip target/release/pbpaste
+
+      - name: Archive
+        run: tar czf x11-pbcopy-pbpaste-${{ needs.release.outputs.release_version }}.tar.gz -C target/release pbcopy pbpaste
+
+      - name: Upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.release_upload_url }}
+          asset_path: x11-pbcopy-pbpaste-${{ needs.release.outputs.release_version }}.tar.gz
+          asset_name: x11-pbcopy-pbpaste-${{ needs.release.outputs.release_version }}.tar.gz
+          asset_content_type: application/octet-stream
