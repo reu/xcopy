@@ -1,15 +1,20 @@
 [package]
-name = "x11-pbcopy-pbpaste"
-version = "0.1.0"
+name = "xcopy"
+version = "0.2.0"
 edition = "2021"
+categories = ["command-line-utilities"]
+keywords = ["clipboard", "pbcopy", "pbpaste"]
+description = "X11 copy and paste CLI"
+license = "MIT"
+repository = "https://github.com/reu/xcopy"
 
 [[bin]]
-name = "pbcopy"
-path = "./src/pbcopy.rs"
+name = "xcopy"
+path = "./src/xcopy.rs"
 
 [[bin]]
-name = "pbpaste"
-path = "./src/pbpaste.rs"
+name = "xpaste"
+path = "./src/xpaste.rs"
 
 [dependencies]
 nix = "0.23.1"

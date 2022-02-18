@@ -88,14 +88,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "x11-pbcopy-pbpaste"
-version = "0.1.0"
-dependencies = [
- "nix",
- "x11-clipboard",
-]
-
-[[package]]
 name = "xcb"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -104,4 +96,12 @@ dependencies = [
  "libc",
  "log",
  "quick-xml",
+]
+
+[[package]]
+name = "xcopy"
+version = "0.2.0"
+dependencies = [
+ "nix",
+ "x11-clipboard",
 ]

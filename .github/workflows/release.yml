@@ -71,11 +71,11 @@ jobs:
 
       - name: Strip debug information
         run: |
-          strip target/release/pbcopy
-          strip target/release/pbpaste
+          strip target/release/xcopy
+          strip target/release/xpaste
 
       - name: Archive
-        run: tar czf x11-pbcopy-pbpaste-${{ needs.release.outputs.release_version }}.tar.gz -C target/release pbcopy pbpaste
+        run: tar czf xcopy-${{ needs.release.outputs.release_version }}.tar.gz -C target/release xcopy xpaste
 
       - name: Upload release
         uses: actions/upload-release-asset@v1
@@ -83,6 +83,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.release_upload_url }}
-          asset_path: x11-pbcopy-pbpaste-${{ needs.release.outputs.release_version }}.tar.gz
-          asset_name: x11-pbcopy-pbpaste-${{ needs.release.outputs.release_version }}.tar.gz
+          asset_path: xcopy-${{ needs.release.outputs.release_version }}.tar.gz
+          asset_name: xcopy-${{ needs.release.outputs.release_version }}.tar.gz
           asset_content_type: application/octet-stream
